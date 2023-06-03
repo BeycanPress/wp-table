@@ -72,11 +72,13 @@ class Table extends \WP_List_Table
     /**
      *
      * @param object $model
+     * @param array $params
      * @param array $args
      * @return void
      */
-    public function __construct(object $model, array $args = [])
+    public function __construct(object $model, array $params = [], array $args = [])
     {
+        $this->params = $params;
         $this->setModel($model);
         parent::__construct($args);
     }
@@ -96,19 +98,13 @@ class Table extends \WP_List_Table
             $this->setOrderQuery([$orderBy, $order]);
         }
 
-        if (isset($_GET['s']) && !empty($_GET['s'])) {
-            $s = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : null;
-            $dataList = $this->model->search($s);
-            $dataListCount = $this->model->searchCount($s);
-        }
-
-        if ($customDataList && !isset($dataList)) {
+        if ($customDataList) {
             [$dataList, $dataListCount] = $customDataList($this->model, $this->orderQuery, $this->perPage, $offset);
         }
-
-        if (!isset($dataList)) {
-            $dataList = $this->model->findBy([], $this->orderQuery, $this->perPage, $offset);
-            $dataListCount = $this->model->getCount();
+        
+        if (is_null($dataList)) {
+            $dataList = $this->model->findBy($this->params, $this->orderQuery, $this->perPage, $offset);
+            $dataListCount = $this->model->getCount($this->params);
         }
 
         $this->setDataList($dataList);
