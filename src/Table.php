@@ -102,7 +102,7 @@ class Table extends \WP_List_Table
             [$dataList, $dataListCount] = $customDataList($this->model, $this->orderQuery, $this->perPage, $offset);
         }
         
-        if (is_null($dataList)) {
+        if (!isset($dataList)) {
             $dataList = $this->model->findBy($this->params, $this->orderQuery, $this->perPage, $offset);
             $dataListCount = $this->model->getCount($this->params);
         }
